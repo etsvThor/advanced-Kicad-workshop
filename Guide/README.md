@@ -5,7 +5,7 @@ In this guide we will explore more advanced features that Kicad has to offer.
 The main feature that will be shown is the scripting interface which is included since kicad 5 by default. 
 Al functions and datastructures of this Python API are given in <https://docs.kicad.org/doxygen-python/namespacepcbnew.html> which is helpful to open in a new tab and can be used for future reference. 
 This guide is based on the documentation of Kicad <https://github.com/KiCad/kicad-doc/blob/master/src/pcbnew/pcbnew_python_scripting.adoc> and <https://www.youtube.com/watch?v=_zVJ96SdYrs&t=1152s&ab_channel=ContextualElectronics>.
-The example project which we will be scripting is a WS2812B RGB LED clock powered by an ESP2812.
+The example project which we will be scripting is a WS2812B RGB LED clock powered by an ESP8266.
 The main part where scripting can be very helpful is the placement of the 60 WS2812B LEDs. 
 Futhermore, this guide also highlights some design considerations when using scripting within Kicad. 
 ## Schematic Notes 
@@ -63,7 +63,7 @@ You can use your favorite editor. If you don't have one VScode or Notepad++ are 
 from pcbnew import * 
 board=GetBoard()
 esp8266pos=wxPointMM(100,100)   
-esp8266=board.GetFootprint(esp8266pos,GetLayerID("F.Cu"),True)
+esp8266=board.GetFootprint(esp8266pos,board.GetLayerID("F.Cu"),True)
 esp8266.SetPosition(wxPointMM(50,50))
 Refresh()
 ```
