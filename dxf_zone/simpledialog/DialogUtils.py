@@ -13,8 +13,7 @@ from ..save_config import save_config
 # This class gives a basic dialog with ok and cancel buttons.
 class BaseDialog(wx.Dialog):
     def __init__(self, dialogname, onok=None):
-        pcbnew_frame = \
-            list(filter(lambda w: w.GetTitle().startswith('Pcbnew'), wx.GetTopLevelWindows()))[0]
+        pcbnew_frame =  [x for x in wx.GetTopLevelWindows() if 'pcb' in x.GetTitle().lower()][0]
 
         wx.Dialog.__init__(self, pcbnew_frame,
                            id=wx.ID_ANY,

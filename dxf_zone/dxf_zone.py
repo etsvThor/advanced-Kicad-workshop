@@ -1,14 +1,13 @@
 import pcbnew
 import pdb
-import dxfgrabber
-import numpy
-import scipy
-import shapely
 import wx
 import os
 import sys
 import inspect
-import pdb
+import dxfgrabber
+import numpy
+import scipy
+import shapely
 from .simpledialog import DialogUtils
 
 import os.path
@@ -47,6 +46,7 @@ class DXFZonePlugin(pcbnew.ActionPlugin):
         self.name = "Convert a DXF to a zone"
         self.category = "A descriptive category name"
         self.description = "This plugin reads a dxf file and converts it to a zone"
+        self.show_toolbar = False
 
     def Run(self):
         dlg = DXFZoneDialog()
@@ -58,20 +58,12 @@ class DXFZonePlugin(pcbnew.ActionPlugin):
                 warndlg.ShowModal()
                 warndlg.Destroy()
                 return
-
             net = dlg.net.GetValuePtr()
-
-            traverse_dxf(dlg.file_picker.value,
-                         zone_actions(pcbnew.GetBoard(),
-                                      net,
-                                      dlg.basic_layer.valueint),
-                         merge_polys=True,
-                         break_curves=True
-            )
+            traverse_dxf(dlg.file_picker.value,zone_actions(pcbnew.GetBoard(),net,dlg.basic_layer.valueint),merge_polys=True,break_curves=True)
             #pcbnew.Refresh()
         else:
             print("cancel")
-#
+
 #class DXFGraphicDialog(DialogUtils.BaseDialog):
 #    def __init__(self):
 #        super(DXFGraphicDialog, self).__init__("DXF Dialog")

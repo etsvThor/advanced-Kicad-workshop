@@ -125,18 +125,26 @@ class zone_actions(graphic_actions):
     # poly is the only thing that really makes sense in
     # the zone context
     def poly_action(self, points):
+    
         pcbpt = pcbpoint.pcbpoint(points[0]).wxpoint()
-        zone_container = self.board.InsertArea(self.net.GetNet(), 0, self.layer,
-                                               pcbpt.x, pcbpt.y, 
-                                               2)
-        shape_poly_set = zone_container.Outline()
-        shapeid = 0
-        for pt in points[1:]:
-            pcbpt = pcbpoint.pcbpoint(pt).wxpoint()
-            shape_poly_set.Append(pcbpt.x, pcbpt.y)
-
-        zone_container.Hatch()
-
+        print(points,file=sys.stderr)
+        zone_container = pcbnew.ZONE(self.board)
+        zone_container.SetLayer(self.layer)
+        # zone_container = self.board.AddArea(self.board.GetZoneList(),self.net.GetNetCode(),self.layer,
+                                               # pcbpt,
+                                               # 2)
+        
+        #shape_poly_set = zone_container.Outline()
+        #shapeid = 0
+        #print(shape_poly_set,file=sys.stderr)
+        wx_vector = pcbnew.wxPoint_Vector(0)
+        for point in points:
+            pcbnew.wxPoint_Vector.append(wx_vector, pcbpoint.pcbpoint(point).wxpoint())
+            print(point,file=sys.stderr)
+        zone_container.AddPolygon(wx_vector)
+        self.board.Add(zone_container)
+        filler = pcbnew.ZONE_FILLER(self.board)
+        filler.Fill(self.board.Zones())
 
 class mounting_actions(graphic_actions):
 

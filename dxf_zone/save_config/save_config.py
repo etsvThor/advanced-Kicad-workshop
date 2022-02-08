@@ -12,7 +12,7 @@ import pprint
 
 
 def GetConfigPath():
-    configpath = pcbnew.GetKicadConfigPath()
+    configpath = pcbnew.GetSettingsManager().GetUserSettingsPath()
     return configpath + "/kicad_mmccoo.xml"
 
 def GetConfigTree():

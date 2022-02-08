@@ -51,11 +51,11 @@ esp8266.SetPosition(wxPointMM(100,100))
 Nothing changes after firing the command. To see the changes also apear in the editor. 
 PCBnew must be given a sign that the display must be refreshed by running `Refresh()`
 ## Making the script
-Now that you have some basic understanding of the scripting process we will take our next to make a script.
-Some things you may have noticed is that if you typed the commands themself that there is no previous command button, but there is autocomple.
+Now that you have some basic understanding of the scripting process we will now be making a script.
+Some things you may have noticed is that if you typed the commands themself that there is no previous command button(like arrow up), but there is autocomple.
 For the next part we will be using some for-loops to speed things up and really get scripting. To make this easier we will be using an external editor.
-You can use your favorite editor. If you don't have one VScode or Notepad++ are good starting positions.
-- Make a file `place_leds.py` in save it in an path without spaces(for windows make a direcroy on C:blabla).
+You can use your favorite editor. If you don't have one Notepad++ is a good choice.
+- Make a file `place_leds.py` and save it in a path without spaces, so make the direcroy C://KicadScripts.
 - Open it in the editor.
 - Place the following code in the file.
 
@@ -70,13 +70,11 @@ Refresh()
 
 - Save the file.
 - Save the PCB and close and open the Scripting console.
-- Paste the following in the scripting console `exec(open("absolute path to script").read())`(Windows: `exec(open("C://blabla/place_leds.py").read())`
+- Paste the following in the scripting console `exec(open("C://KicadScripts/place_leds.py").read())`
 Now the ESP8266 should be moved to (50,50).
 
-Till now we have only played with one footprint, now import all footprints onto the PCB.
-Getting al the needed footprints by position is not very practical so we want to get them by reference with the function `FindModuleByReference()`.
-Note: there is a discrepancy between the Python API and the implementation, so `FindModuleByReference()` is used instead of `FindFootprintByReference()`.
-Using a for-loop we can process all the footprints we want to change.  
+Till now we have only played with one footprint, now import all footprints onto the PCB with the button 'Update PCB with changes made to schematic (F8)'
+Getting al the needed footprints by position is not very practical so we want to get them by reference with the function `FindFootprintByReference()`.
 
 The below example places all the WS2812 LEDs in a circle with the correct orientation.
 ```python
@@ -88,9 +86,9 @@ ledposition=wxPointMM(100,50)
 angle=360/60
 radius=50
 for i in range(0,60):
-    LED=board.FindModuleByReference("D"+str(i+1))
+    LED=board.FindFootprintByReference("D"+str(i+1))
     ledposition.x=circle_center.x+FromMM(radius*math.cos(math.radians(angle*i)))
-    ledposition.y=circle_center.y-FromMM(radius*math.sin(math.radians(angle*i))) #minus because of coordinat system
+    ledposition.y=circle_center.y-FromMM(radius*math.sin(math.radians(angle*i))) #minus because of coordinate system
     LED.SetPosition(ledposition)
     LED.SetOrientationDegrees(270+angle)
 ```
@@ -108,36 +106,47 @@ radius=50
 radius_cap=5*sqrt(2)+3
 angle_cap=45
 for i in range(0,60):
-    LED=board.FindModuleByReference("D"+str(i+1))
+    LED=board.FindFootprintByReference()("D"+str(i+1))
     ledposition.x=circle_center.x+FromMM(radius*math.cos(math.radians(angle*i)))
-    ledposition.y=circle_center.y-FromMM(radius*math.sin(math.radians(angle*i))) #minus because of coordinat system
+    ledposition.y=circle_center.y-FromMM(radius*math.sin(math.radians(angle*i))) #minus because of coordinate system
     LED.SetPosition(ledposition)
     LED.SetOrientationDegrees(270+angle)
-    CAP=board.FindModuleByReference("C"+str(i+1))
+    CAP=board.FindFootprintByReference("C"+str(i+1))
     capposition.x=ledposition.x+FromMM(radius_cap*math.cos(math.radians(angle*i+angle_cap))) 
     capposition.y=ledposition.y-FromMM(radius_cap*math.sin(math.radians(angle*i+angle_cap))) 
     CAP.SetPosition(cappositon) 
     CAP.SetOrientationDegrees(angle)
 ```
 The final part of our script is to add tracks and vias to our layout.
+For this we also need some information of the properties of vias and tracks. These properties are contained in netclasses. For this workshop we stick to the defaultclass.
+The netclassptr object of the default class can be found by:
+```python
+defaultclass=board.GetDesignSettings().GetNetClasses().GetDefault()
+```
+Previously this was also possible via from the net itself because all new nets get the default netclass:
+```python
+class=net.GetNetClass()
+```
+However this is not yet fixed for the latest version of Kicad (6.01).
+
 - This code shows how to make a track segment from a startpoint to an endpoint. 
 ```python
-newtrack=TRACK(board) #create a trackobject
+newtrack=PCB_TRACK(board) #create a trackobject
 board.Add(newtrack) #add the track to our board
 newtrack.SetNet(net) #set which net the track is
 newtrack.SetStart(startpoint) #set startpoint
 newtrack.SetEnd(endpoint) #set endpoint
-newtrack.SetWidth(net.GetNetClass().GetTrackWidth()) #set the trackwidth from our netclas
-newtrack.SetLayer(layerID) #set the layer from the layerid
+newtrack.SetWidth(defaultclass.GetTrackWidth()) #set the trackwidth from the default netclass
+newtrack.SetLayer(layerID) #set the layer from the LayerId the LayerId can be found by GetLayerID('layername')
 ```
 - Adding a via to the board is similar but slightly different.
 ```python
-via=VIA(board) #create new via
+via=PCB_VIA(board) #create new via
 board.Add(via) #add via to board
 via.SetNet(vianets) #set net of via
-via.SetWidth(vianet.GetNetClass().GetViaDiameter()) #set the net of the via
+via.SetWidth(defaultclass.GetViaDiameter()) #set the width of the via from the default netclass
 via.SetPosition(viapoint) #set the postion of the via through a point
-via.SetViaType(VIA_THROUGH) #set viatype 
+via.SetViaType(VIATYPE_THROUGH) #set viatype 
 via.SetLayerPair(0,31)#set layerpair by layerid 0=top and 31=bottom GetLayerID() can also be used
 ```
 Try to finish the script by yourself by adding:
@@ -147,24 +156,30 @@ Try to finish the script by yourself by adding:
 4. A track between the GND pin of the cap and the via. 
 5. (optional) Change variables to the layout better.
 
-Tip: to get the position of a pad the `GetCenter()` function can be used.
+Tip: to get the pad from a footprint the function `FindPadByNumber()` can be used and to get the position of a pad the `GetCenter()` function can be used.
 Not all information is given and there are more ways to achieve this result. 
 The API reference can be used to look for the missing information.
 
 If you are stuck you can look at the final script in the Scripts folder.
-# Using plugins
-Plugins are small script that can be used within pcbnew to speed up some actions or to extend pcbnew's functionality.
+
+# Using action plugins
+
+Action plugins are small script that can be used within pcbnew to speed up some actions or to extend pcbnew's functionality.
 For instance pcbnew does not have capabilities to import custom copper fils by DXF. So we will use an external plugin to do this.
 
 An Openscad script `copper_fills.scad` is used to generate the copper fill geometry. Due to the limitations on how the copper fill is generated, the outer ring needs a small gap.
-The Plugin is also located in the project folder as `DXFZonePlugin` to install it copy it to the Plugins Folder.
-The location of this folder can be found in pcbnew by Preferencs -> Configure Paths ->`KICAD_PLUGIN_DIR`.
+The action plugin is located in the project folder as `dxf_zone` folder to install it copy it to the Plugins Folder.
+The location of this folder can be found in pcbnew by Tools -> External Plugins -> Open Plugin Directory.
 After copying it in the folder the plugin should show up in: 
 
 Tools -> External Plugins -> Convert a DXF to a zone (after clicking refresh plugins in the same menu)
 
 The needed DXF files are in the DXF folder of the project.
 Try to get them onto the pcb layout.
+
+Other usefull plugins are: Place Footprints(this can also be used to make a circle of components), replicate layout(to copy with changed referencing), Kikit(for easy penalization), pcb-action tools(this has a lot of action plugins).
+These can all be installed via the Plugin and Content Manager. The shortcut for this is located at the kicad startscreen.
+
 # Conclusion
 This is the end of the workshop. Al other parts are of the pcb layout are probably not worth spending time on to script and can be routed by hand more easily.
 Scripting can be a very powerful tool in the right situation and can make your life easier if done right.
@@ -173,7 +188,7 @@ If you want to know more about Kicad scripting and using Plugins, you can check 
 ## Appendix
 ### Further reading
 - Kicad can also be used as a simulator, but this is not as functional out-of-the-box yet compared to non-free simulators such as Multisim.
-- Schematics can also be made in a code style fashion by using a Python library <https://github.com/xesscorp/skidl>(very usefull for large number of copies of a (sub)circuit
+- Schematics can also be made in a code style fashion by using a Python library <https://github.com/xesscorp/skidl>(very usefull for large number of copies of a (sub)circuit)
 - Producing fabricating outputs as wel as schematic prints can also be scripted. 
 KiPlot<https://github.com/johnbeard/kiplot> for generating gerbers and Kicad Automations Tool<https://github.com/obra/kicad-tools> for outputing everything.  
 - The DXFZonePlugin is made to work with kicad 5.1.x and adapted from <https://github.com/mmccoo/kicad_mmccoo> which only support earlier versions of pcbnew,
