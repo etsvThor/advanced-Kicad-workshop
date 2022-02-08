@@ -9,7 +9,7 @@ The example project which we will be scripting is a WS2812B RGB LED clock powere
 The main part where scripting can be very helpful is the placement of the 60 WS2812B LEDs. 
 Futhermore, this guide also highlights some design considerations when using scripting within Kicad. 
 ## Schematic Notes 
-Open the project `Kicad_workshop_volundr_clock.zip` given  with this guide, and use the unarchive function of Kicad. You can browse the schematic to view which components we will be using in our design. 
+Open the project `Kicad_workshop_volundr_clock` given  with this guide. You can browse the schematic to view which components we will be using in our design. 
 Some notes on the schematic: the design is made out of hierarchical sheets which has some advantages for scripting and using existing plugins. 
 For instance a simple copy of a drawn layout can be copied with the duplicate shortcut (CTRL+D), however in this case the references and netnames are not updated.
 For duplicating layouts where the refereces and netnames are updated we can use a scripts which need hierachical sheets to work.
