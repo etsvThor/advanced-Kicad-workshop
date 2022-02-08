@@ -42,7 +42,7 @@ The last argument we just set as `True`, because our ESP8266 module is visible i
 The footprint object can be saved so we can interact with it further.
 Tying this all together gives the following command.
 ```python
-esp8266=board.GetFootprint(esp8266pos,GetLayerID("F.Cu"),True)
+esp8266=board.GetFootprint(esp8266pos,board.GetLayerID("F.Cu"),True)
 ```
 We can now use the the footprint object to change the position to somewhere in the middle of the sheet.
 ```python
