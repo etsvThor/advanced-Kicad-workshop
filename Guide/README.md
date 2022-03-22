@@ -55,7 +55,7 @@ Now that you have some basic understanding of the scripting process we will now 
 Some things you may have noticed is that if you typed the commands themself that there is no previous command button(like arrow up), but there is autocomple.
 For the next part we will be using some for-loops to speed things up and really get scripting. To make this easier we will be using an external editor.
 You can use your favorite editor. If you don't have one Notepad++ is a good choice.
-- Make a file `place_leds.py` and save it in a path without spaces, so make the direcroy C://KicadScripts.
+- Make a file `place_leds.py` and save it in a path without spaces, so make the directory C://KicadScripts.
 - Open it in the editor.
 - Place the following code in the file.
 
@@ -123,7 +123,7 @@ The netclassptr object of the default class can be found by:
 ```python
 defaultclass=board.GetDesignSettings().GetNetClasses().GetDefault()
 ```
-Previously this was also possible via from the net itself because all new nets get the default netclass:
+Previously this was also possible to get this from the net itself because all new nets get the default netclass:
 ```python
 class=net.GetNetClass()
 ```
